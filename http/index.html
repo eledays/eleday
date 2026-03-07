@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP-запрос</title>
+    <link rel="stylesheet" href="/root.css">
+</head>
+
+<body>
+    <div class="main-container">
+        <h1 class="block">HTTP-запрос</h1>
+        <div class="block">
+            <p>
+                Чтобы в Интернете что-то от кого-то получить, нужно сделать запрос. В частности, в вебе это
+                HTTP-запросы.
+            </p>
+            <p>
+                Пробежимся по основным понятиям, рассмотрим структру и соберем свой HTTP-запрос.
+            </p>
+        </div>
+        <div class="block">
+            <h2>HTTP</h2>
+            <div class="sub-block">
+                <p>
+                    HyperText Transfer Protocol — протокол передачи гипертекста (текста со ссылками на другие такие тексты), то есть набор правил, по которым:
+                </p>
+                <ul>
+                    <li>клиент отправляет запрос</li>
+                    <li>сервер отвечает на него</li>
+                </ul>
+            </div>
+        </div>
+        <div class="block">
+            <h2>Структура HTTP-запроса</h2>
+            <p>Запрос — это текст со строгой структурой. Простой пример, который дальше разберем:</p>
+            <code>GET /images/landscape.png HTTP/1.1
+Host: eleday.ru
+User-Agent: Chrome
+Accept: image/*</code>
+        </div>
+        <div class="block">
+            <h2>1. Строка запроса</h2>
+            <code>GET /images/landscape.png HTTP/1.1</code>
+            <div class="sub-block">
+                <p>Здесь три элемента:</p>
+                <ul>
+                    <li>метод запроса — действие, которое хотим сделать</li>
+                    <li>путь</li>
+                    <li>версия протокола</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
