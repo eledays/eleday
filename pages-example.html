@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pages System Example</title>
+    <link rel="stylesheet" href="/root.css">
+    <link rel="stylesheet" href="/pages.css">
+</head>
+
+<body>
+    <!-- Progress bar at the top -->
+    <div class="pages-progress" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="1"></div>
+
+    <!-- Pages container with swipe support -->
+    <div class="pages-wrapper">
+        <div class="pages-container">
+            <!-- Page 1 -->
+            <div class="page">
+                <div class="block">
+                    <h1>Страница 1</h1>
+                    <p>Это первая страница системы пагинации.</p>
+                    <p>Вы можете свайпнуть влево, чтобы перейти на следующую страницу, или вправо, чтобы вернуться.</p>
+                </div>
+                <div class="block">
+                    <h2>Особенности</h2>
+                    <ul>
+                        <li>Горизонтальный свайп для навигации</li>
+                        <li>Плавные переходы между страницами</li>
+                        <li>Вертикальный скролл на каждой странице</li>
+                        <li>Прогресс-бар сверху</li>
+                    </ul>
+                </div>
+                <div class="block">
+                    <p>Используйте стрелки клавиатуры (← →) для навигации на рабочем столе.</p>
+                </div>
+            </div>
+
+            <!-- Page 2 -->
+            <div class="page">
+                <div class="block">
+                    <h1>Страница 2</h1>
+                    <p>Добро пожаловать на вторую страницу!</p>
+                    <p>Каждая страница может иметь свой собственный контент и вертикальный скролл.</p>
+                </div>
+                <div class="block">
+                    <h2>Много контента</h2>
+                    <p>Чтобы протестировать вертикальный скролл, добавьте больше контента:</p>
+                </div>
+                <div class="block">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                    <p>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                    <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+                    <p>Duis aute irure dolor in reprehenderit in voluptate velit esse.</p>
+                    <p>Cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat.</p>
+                </div>
+                <div class="block">
+                    <p>Продолжайте свайпить, чтобы увидеть следующие страницы!</p>
+                </div>
+            </div>
+
+            <!-- Page 3 -->
+            <div class="page">
+                <div class="block">
+                    <h1>Страница 3</h1>
+                    <p>Вы на третьей странице.</p>
+                </div>
+                <div class="block">
+                    <h2>Управление</h2>
+                    <table>
+                        <tr>
+                            <th>Действие</th>
+                            <th>Способ</th>
+                        </tr>
+                        <tr>
+                            <td>Следующая страница</td>
+                            <td>Свайп влево или стрелка вправо</td>
+                        </tr>
+                        <tr>
+                            <td>Предыдущая страница</td>
+                            <td>Свайп вправо или стрелка влево</td>
+                        </tr>
+                        <tr>
+                            <td>Перейти на страницу</td>
+                            <td>Клик по сегменту прогресса</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="block">
+                    <p>Система автоматически инициализируется при загрузке страницы.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include the pages system script -->
+    <script src="/pages.js" defer></script>
+</body>
+
+</html>
