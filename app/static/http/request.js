@@ -37,7 +37,32 @@ class HTTPRequestBuilder {
       }
     });
 
+    // Обработка примеров
+    document.querySelectorAll('.example-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => this.loadExample(e.target));
+    });
+
     this.updateBodyFieldVisibility();
+  }
+
+  loadExample(btn) {
+    const method = btn.getAttribute('data-method');
+    const url = btn.getAttribute('data-url');
+    const body = btn.getAttribute('data-body');
+
+    this.methodSelect.value = method;
+    this.urlInput.value = url;
+    
+    if (body) {
+      this.bodyTextarea.value = body;
+    } else {
+      this.bodyTextarea.value = '';
+    }
+
+    this.updateBodyFieldVisibility();
+    
+    // Автоматически отправляем запрос
+    setTimeout(() => this.sendRequest(), 100);
   }
 
   updateBodyFieldVisibility() {

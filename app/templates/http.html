@@ -225,8 +225,8 @@ hello world!</code>
                 <input 
                     type="text" 
                     id="req-url" 
-                    placeholder="https://eleday.ru/hello"
-                    value="https://eleday.ru/hello"
+                    placeholder="{{ config.URL }}/hello"
+                    value="{{ config.URL }}/hello"
                 >
             </div>
 
@@ -248,6 +248,16 @@ hello world!</code>
             </div>
 
             <button id="req-send" class="btn-send">Отправить запрос</button>
+        </div>
+
+        <div class="quick-examples">
+            <h4>📚 Быстрые примеры:</h4>
+            <button class="example-btn" data-method="GET" data-url="{{ config.URL }}/get?name=Иван&count=2">GET с параметрами</button>
+            <button class="example-btn" data-method="POST" data-url="{{ config.URL }}/post" data-body='{"name":"Иван","age":25}'>POST с данными</button>
+            <button class="example-btn" data-method="PUT" data-url="{{ config.URL }}/put" data-body='{"id":1,"name":"Пётр","status":"active"}'>PUT запрос</button>
+            <button class="example-btn" data-method="DELETE" data-url="{{ config.URL }}/delete?id=123">DELETE запрос</button>
+            <button class="example-btn" data-method="PATCH" data-url="{{ config.URL }}/patch" data-body='{"name":"Новое имя"}'>PATCH запрос</button>
+            <button class="example-btn" data-method="OPTIONS" data-url="{{ config.URL }}/options">OPTIONS запрос</button>
         </div>
     </div>
 

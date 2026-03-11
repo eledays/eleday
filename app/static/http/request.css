@@ -95,6 +95,44 @@
     cursor: not-allowed;
 }
 
+/* Quick Examples Section */
+.quick-examples {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.quick-examples h4 {
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.example-btn {
+    background-color: #3a5a5a;
+    border: 1px solid #4a7a7a;
+    color: #64c8ff;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 200ms ease;
+    margin: 4px 6px 4px 0;
+    display: inline-block;
+}
+
+.example-btn:hover {
+    background-color: #4a7a7a;
+    border-color: #64c8ff;
+    box-shadow: 0 0 8px rgba(100, 200, 255, 0.3);
+}
+
+.example-btn:active {
+    transform: scale(0.96);
+}
+
 /* Result Sections */
 .result-section {
     margin-top: 12px;
