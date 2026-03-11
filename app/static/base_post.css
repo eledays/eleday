@@ -30,6 +30,17 @@ p {
     line-height: 1.45rem;
 }
 
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .block {
     border: 1px solid var(--border-color);
     padding: var(--block-padding);
@@ -38,6 +49,9 @@ p {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    animation: fadeInUp .6s ease forwards;
+    animation-delay: calc(var(--index) * 100ms);
+    opacity: 0;
 }
 
 a {
@@ -99,4 +113,19 @@ th {
 th, td {
     border: 1px solid var(--border-color);
     padding: 6px 8px;
+}
+
+.nav-hint {
+    position: absolute;
+    border-radius: var(--block-border-radius);
+    width: 80vw;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.nav-hint p {
+    font-size: 0.9rem;
+    color: #6e6e6e;
+    text-align: center;
 }

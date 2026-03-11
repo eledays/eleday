@@ -47,6 +47,9 @@ class PagesSystem {
       return;
     }
 
+    // Initialize block animation indices
+    this.initializeBlockAnimations();
+
     // Setup progress bar segments
     this.setupProgressBar();
 
@@ -65,6 +68,15 @@ class PagesSystem {
 
     // Show first page
     this.goToPage(0, false);
+  }
+
+  initializeBlockAnimations() {
+    this.pages.forEach((page) => {
+      const blocks = page.querySelectorAll('.block');
+      blocks.forEach((block, index) => {
+        block.style.setProperty('--index', index);
+      });
+    });
   }
 
   setupProgressBar() {

@@ -227,17 +227,3 @@
     position: absolute;
     left: 0;
 }
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .form-group input[type="text"],
-    .form-group textarea,
-    .form-group select {
-        font-size: 16px; /* Prevents zoom on iOS */
-    }
-
-    .code-block {
-        max-height: 200px;
-        font-size: 0.8rem;
-    }
-}
