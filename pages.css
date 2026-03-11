@@ -3,6 +3,7 @@
 :root {
     --pb-background-color: #ffffff1a;
     --pb-accent-color: #aaaaaa;
+    --pb-height: 8px;
 }
 
 /* Disable global scroll - all scrolling happens inside pages */
@@ -19,15 +20,21 @@ body {
 
 /* Progress bar at the top */
 .pages-progress {
+    position: absolute;
+    height: var(--pb-height);
     display: flex;
     gap: 8px;
     align-items: center;
     justify-content: center;
-    padding: 16px 12px;
-    background-color: var(--background-color);
-    position: relative;
+    padding: 10px 12px;
+    background-color: #1818183f;
     flex-shrink: 0;
     z-index: 100;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
 }
 
 .pages-progress-segment {
@@ -73,6 +80,7 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
     padding: 12px;
+    padding-top: calc(24px + var(--pb-height));
     box-sizing: border-box;
     scroll-behavior: smooth;
 }
