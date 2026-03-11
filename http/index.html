@@ -7,10 +7,11 @@
     <title>Pages System Example</title>
     <link rel="stylesheet" href="/root.css">
     <link rel="stylesheet" href="/pages.css">
+    <link rel="stylesheet" href="/http/request.css">
 </head>
 
 <body>
-    <div class="pages-progress" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="1"></div>
+    <div class="pages-progress" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1"></div>
 
     <div class="pages-wrapper">
         <div class="pages-container">
@@ -202,10 +203,95 @@ hello world!</code>
                     <p>Тут тоже есть заголовки и тело запроса</p>
                 </div>
             </div>
+
+            <div class="page">
+                <div class="block">
+                    <h2>Собери свой HTTP-запрос</h2>
+                    <p>Теперь попробуй создать и отправить запрос прямо отсюда: выбери метод, введи URL и заголовки и отправь</p>
+                </div>
+
+                <div class="block security-info">
+                    <h3>Не отправляй чувствительные данные (пароли, личные данные и т. д.)</h3>
+                </div>
+
+                <div class="block">
+                    <div class="request-builder">
+                        <div class="form-group">
+                            <label for="req-method">Метод:</label>
+                            <select id="req-method">
+                                <option value="GET">GET</option>
+                                <option value="POST">POST</option>
+                                <option value="PUT">PUT</option>
+                                <option value="DELETE">DELETE</option>
+                                <option value="PATCH">PATCH</option>
+                                <option value="HEAD">HEAD</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="req-url">URL:</label>
+                            <input 
+                                type="text" 
+                                id="req-url" 
+                                placeholder="https://eleday.ru/hello"
+                                value="https://eleday.ru/hello"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="req-headers">Заголовки (опционально):</label>
+                            <textarea 
+                                id="req-headers" 
+                                placeholder="Authorization: Bearer token&#10;Custom-Header: value"
+                            ></textarea>
+                            <small>Формат: Header-Name: value</small>
+                        </div>
+
+                        <div id="req-body-group" class="form-group" style="display: none;">
+                            <label for="req-body">Тело (body):</label>
+                            <textarea 
+                                id="req-body" 
+                                placeholder='{"name": "value"}'
+                            ></textarea>
+                        </div>
+
+                        <button id="req-send" class="btn-send">Отправить запрос</button>
+                    </div>
+                </div>
+
+                <div id="req-loading" class="block" style="display: none; text-align: center;">
+                    <p>⏳ Отправляю запрос...</p>
+                </div>
+
+                <div id="req-result" class="block" style="display: none;">
+                    <h3>Ответ сервера</h3>
+                    
+                    <div class="result-section">
+                        <strong>Статус:</strong>
+                        <code id="req-status">-</code>
+                    </div>
+
+                    <div class="result-section">
+                        <strong>Заголовки ответа:</strong>
+                        <div id="req-response-headers" class="code-block"></div>
+                    </div>
+
+                    <div class="result-section">
+                        <strong>Тело ответа:</strong>
+                        <div id="req-response-body" class="code-block"></div>
+                    </div>
+                </div>
+
+                <div id="req-error" class="block error" style="display: none;">
+                    <strong>⚠️ Ошибка:</strong>
+                    <p id="req-error-text"></p>
+                </div>
+            </div>
         </div>
     </div>
 
     <script src="/pages.js" defer></script>
+    <script src="/http/request.js" defer></script>
 </body>
 
 </html>
