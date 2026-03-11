@@ -63,6 +63,8 @@ body {
     flex: 1;
     overflow: hidden;
     background-color: var(--background-color);
+    max-width: 512px;
+    margin: 0 auto;
 }
 
 .pages-container {
@@ -128,3 +130,13 @@ body {
     outline: 2px solid rgba(255, 255, 255, 0.5);
     outline-offset: 2px;
 }
+
+/* @media screen and (min-width: 512px) {
+    .pages-wrapper {
+        width: 512px;
+        margin: 32px auto;
+        border-radius: var(--block-border-radius);
+
+    }
+    
+} */
