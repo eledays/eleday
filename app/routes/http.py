@@ -66,7 +66,7 @@ def post():
     except Exception as e:
         return {
             "status": "error",
-            "message": f"❌ Ошибка обработки: {str(e)}",
+            "message": "Ошибка обработки",
             "hint": "Убедись, что отправляешь корректный JSON"
         }, 400
 
@@ -137,7 +137,7 @@ def put():
         }, 200
         
     except Exception as e:
-        return {"status": "error", "message": str(e)}, 400
+        return {"status": "error"}, 400
 
 
 @bp.route("/delete", methods=["DELETE", "OPTIONS"])
@@ -187,7 +187,7 @@ def patch():
         }, 200
         
     except Exception as e:
-        return {"status": "error", "message": str(e)}, 400
+        return {"status": "error"}, 400
 
 
 @bp.route("/head", methods=["HEAD", "OPTIONS"])
