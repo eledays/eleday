@@ -198,6 +198,16 @@ hello world!</code>
 
 <div class="page">
     <div class="block">
+        <h2>URL-параметры</h2>
+        <p>У GET-запросов нет тела, в котором можно было бы передать дополнительные данные, но иногда они нужны, например, в поисковых запросах.</p>
+        <p>В таких случаях используются URL-параметры, которые передаются прямо в пути после знака вопроса в формате <code>ключ1=значение1&ключ2=значение2&...</code></p>
+        <p>Например</p>
+        <code>/search?q=http-запрос&sort=recent</code>
+    </div>
+</div>
+
+<div class="page">
+    <div class="block">
         <h2>Собери свой HTTP-запрос</h2>
         <p>Теперь попробуй создать и отправить запрос прямо отсюда: выбери метод, введи URL и заголовки и отправь</p>
     </div>
@@ -211,6 +221,7 @@ hello world!</code>
             <div class="form-group">
                 <label for="req-method">Метод:</label>
                 <select id="req-method">
+                    <option value="OPTIONS">OPTIONS</option>
                     <option value="GET">GET</option>
                     <option value="POST">POST</option>
                     <option value="PUT">PUT</option>
@@ -225,8 +236,8 @@ hello world!</code>
                 <input 
                     type="text" 
                     id="req-url" 
-                    placeholder="{{ config.URL }}/hello"
-                    value="{{ config.URL }}/hello"
+                    placeholder="{{ config.URL }}/options"
+                    value="{{ config.URL }}/options"
                 >
             </div>
 
