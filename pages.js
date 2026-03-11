@@ -288,9 +288,6 @@ class PagesSystem {
 
     this.updateProgress();
 
-    // Update scroll position to top of page
-    this.pages[index].scrollTop = 0;
-
     const duration = animate ? 350 : 0;
     setTimeout(() => {
       this.isTransitioning = false;
