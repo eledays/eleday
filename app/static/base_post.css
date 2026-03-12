@@ -57,7 +57,6 @@ p {
 a {
     text-decoration: none;
     color: #00b7ff;
-    display: block;
 }
 
 code {
@@ -137,12 +136,4 @@ th, td {
     font-size: 0.9rem;
     color: #6e6e6e;
     text-align: center;
-}
-
-.page.title .cont {
-    position: absolute;
-    top: 33%;
-    left: 50%;
-    transform: translate(-50%, -50%) !important; 
-    width: 90%;
 }

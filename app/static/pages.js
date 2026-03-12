@@ -26,8 +26,9 @@ class PagesSystem {
     this.isDragging = false;
     this.isTransitioning = false;
     this.dragDirection = null; // 'horizontal', 'vertical', or null
-    this.minSwipeDistance = 50; // pixels
+    this.minSwipeDistance = 10; // pixels
     this.directionThreshold = 10; // pixels needed to determine direction
+    this.isInteractiveElementFocused = false; // Track if user is interacting with elements
 
     // Bind methods once to use in remove listener
     this._onTouchStart = this.onTouchStart.bind(this);
@@ -37,6 +38,8 @@ class PagesSystem {
     this._onMouseMove = this.onMouseMove.bind(this);
     this._onMouseUp = this.onMouseUp.bind(this);
     this._onKeyDown = this.onKeyDown.bind(this);
+    this._onFocusIn = this.onFocusIn.bind(this);
+    this._onFocusOut = this.onFocusOut.bind(this);
 
     this.init();
   }
@@ -65,6 +68,10 @@ class PagesSystem {
 
     // Keyboard navigation
     document.addEventListener('keydown', this._onKeyDown);
+
+    // Focus management for interactive elements
+    document.addEventListener('focusin', this._onFocusIn);
+    document.addEventListener('focusout', this._onFocusOut);
 
     // Show first page
     this.goToPage(0, false);
@@ -175,7 +182,7 @@ class PagesSystem {
   onMouseDown(e) {
     if (this.isTransitioning) return;
     // Ignore if clicking on interactive elements
-    if (e.target.closest('a, button, input, textarea, [role="button"]')) return;
+    if (e.target.closest('a, button, input, textarea, select, [role="button"], [role="tab"]')) return;
     
     this.startX = e.clientX;
     this.startY = e.clientY;
@@ -185,6 +192,7 @@ class PagesSystem {
     this.dragDirection = null;
     this.wrapper.classList.add('dragging');
     this.container.style.transition = 'none';
+    this.clickStartTime = Date.now();
   }
 
   onMouseMove(e) {
@@ -217,9 +225,17 @@ class PagesSystem {
     this.isDragging = false;
     this.wrapper.classList.remove('dragging');
     
+    // Check if it was a simple click (not a drag/swipe)
+    const clickDuration = Date.now() - this.clickStartTime;
+    const distance = Math.abs(this.currentX - this.startX);
+    const isClick = clickDuration < 300 && distance < 10;
+    
     // Only handle swipe if it was a horizontal drag
     if (this.dragDirection === 'horizontal') {
       this.handleSwipeEnd();
+    } else if (isClick) {
+      // Handle click navigation
+      this.handleClick(e);
     } else {
       // For vertical drags, just ensure container is at correct position
       this.container.style.transition = 'transform 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
@@ -234,6 +250,8 @@ class PagesSystem {
 
   onKeyDown(e) {
     if (this.isTransitioning) return;
+    // Don't navigate with arrow keys if an interactive element is focused
+    if (this.isInteractiveElementFocused) return;
 
     if (e.key === 'ArrowLeft') {
       e.preventDefault();
@@ -275,6 +293,24 @@ class PagesSystem {
     this.goToPage(targetIndex, true);
   }
 
+  handleClick(e) {
+    // Don't navigate if interactive element is focused
+    if (this.isInteractiveElementFocused) return;
+    
+    // Check if click is on the left or right side of the screen
+    const clickX = e.clientX;
+    const screenWidth = this.wrapper.offsetWidth;
+    const midPoint = screenWidth / 2;
+
+    if (clickX < midPoint) {
+      // Clicked on left side -> go to previous page
+      this.prevPage();
+    } else {
+      // Clicked on right side -> go to next page
+      this.nextPage();
+    }
+  }
+
   prevPage() {
     const targetIndex = Math.max(0, this.currentIndex - 1);
     this.goToPage(targetIndex, true);
@@ -314,6 +350,22 @@ class PagesSystem {
     return this.pages.length;
   }
 
+  onFocusIn(e) {
+    // Check if focused element is interactive
+    const interactiveSelectors = 'a, button, input, textarea, select, [role="button"], [role="tab"], [contenteditable="true"]';
+    if (e.target.closest(interactiveSelectors)) {
+      this.isInteractiveElementFocused = true;
+    }
+  }
+
+  onFocusOut(e) {
+    // Check if the element that lost focus was interactive
+    const interactiveSelectors = 'a, button, input, textarea, select, [role="button"], [role="tab"], [contenteditable="true"]';
+    if (e.target.closest(interactiveSelectors)) {
+      this.isInteractiveElementFocused = false;
+    }
+  }
+
   destroy() {
     this.wrapper.removeEventListener('touchstart', this._onTouchStart);
     this.wrapper.removeEventListener('touchmove', this._onTouchMove);
@@ -322,6 +374,8 @@ class PagesSystem {
     document.removeEventListener('mousemove', this._onMouseMove);
     document.removeEventListener('mouseup', this._onMouseUp);
     document.removeEventListener('keydown', this._onKeyDown);
+    document.removeEventListener('focusin', this._onFocusIn);
+    document.removeEventListener('focusout', this._onFocusOut);
   }
 }
 

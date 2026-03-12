@@ -76,7 +76,7 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
     padding: 12px;
-    padding-top: calc(24px + var(--pb-height));
+    padding-top: calc(48px + var(--pb-height));
     box-sizing: border-box;
     scroll-behavior: smooth;
 }
