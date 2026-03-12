@@ -1,11 +1,5 @@
 /* Pages System Styling */
 
-:root {
-    --pb-background-color: #ffffff1a;
-    --pb-accent-color: #aaaaaa;
-    --pb-height: 8px;
-}
-
 /* Disable global scroll - all scrolling happens inside pages */
 html, body {
     height: 100%;
@@ -27,7 +21,7 @@ body {
     align-items: center;
     justify-content: center;
     padding: 10px 12px;
-    background-color: #1818183f;
+    background-color: var(--pb-background-color);
     flex-shrink: 0;
     z-index: 100;
     top: 4px;
@@ -40,7 +34,7 @@ body {
 .pages-progress-segment {
     width: 24px;
     height: 4px;
-    background-color: var(--pb-background-color);
+    background-color: var(--pb-segment-color);
     border-radius: 4px;
     transition: background-color 300ms ease, transform 200ms ease;
     cursor: pointer;

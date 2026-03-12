@@ -56,7 +56,7 @@ p {
 
 a {
     text-decoration: none;
-    color: var(--text-color);
+    color: #00b7ff;
     display: block;
 }
 
@@ -70,6 +70,7 @@ code {
     display: block;
     margin: 4px 0;
     width: max-content;
+    color: white;
 }
 
 code.big {
@@ -136,4 +137,12 @@ th, td {
     font-size: 0.9rem;
     color: #6e6e6e;
     text-align: center;
+}
+
+.page.title .cont {
+    position: absolute;
+    top: 33%;
+    left: 50%;
+    transform: translate(-50%, -50%) !important; 
+    width: 90%;
 }

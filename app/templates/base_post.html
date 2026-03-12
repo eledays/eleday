@@ -8,6 +8,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='base_post.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='pages.css') }}">
 
+    {% if theme == 'light' %}
+        <link rel="stylesheet" href="{{ url_for('static', filename='themes/light.css') }}">
+    {% else %}
+        <link rel="stylesheet" href="{{ url_for('static', filename='themes/dark.css') }}">
+    {% endif %}
+
     {% block head %}
     {% endblock %}
 </head>

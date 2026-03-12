@@ -199,12 +199,12 @@
 
 /* Security info block */
 .security-info {
-    background-color: rgba(100, 200, 255, 0.05);
-    border-color: rgba(100, 200, 255, 0.3);
+    background-color: #64c8ff0d;
+    border-color: #64c8ff4d;
 }
 
 .security-info h3 {
-    color: #64c8ff;
+    color: var(--highlight-text-color);
     margin-bottom: 12px;
 }
 

@@ -6,12 +6,3 @@
     box-sizing: border-box;
     font-family: 'Inter', sans-serif;
 }
-
-:root {
-    --background-color: #181818;
-    --text-color: #ffffff;
-    --border-color: #cfcfcf;
-
-    --block-padding: 18px;
-    --block-border-radius: 14px;
-}

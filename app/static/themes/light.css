@@ -1,0 +1,13 @@
+:root {
+    --background-color: #ffffff;
+    --text-color: #000000;
+    --border-color: #cfcfcf;
+
+    --block-padding: 18px;
+    --block-border-radius: 14px;
+
+    --pb-background-color: #ffffff3f;
+    --pb-segment-color: #1b1b1b1a;
+    --pb-accent-color: #858585;
+    --pb-height: 8px;
+}

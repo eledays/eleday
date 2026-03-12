@@ -21,7 +21,8 @@ def add_cors_headers(f):
 
 @bp.route("/http")
 def http_post():
-    return render_template("http.html")
+    theme = request.args.get("theme", "dark").lower()
+    return render_template("http.html", theme=theme)
 
 
 @bp.route("/hello", methods=["GET"])
