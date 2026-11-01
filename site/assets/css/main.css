@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+:root { color-scheme: light; --bg:#faf8ef; --surface:#f0eee5; --text:#242521; --muted:#686a62; --line:#dcdcd0; --accent:#49664a; --width:740px; }
+:root[data-theme="dark"] { color-scheme:dark; --bg:#1c1d1c; --surface:#252725; --text:#e4e5dd; --muted:#a4a79d; --line:#3b3e38; --accent:#adbd94; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font:400 17px/1.8 Manrope,system-ui,sans-serif; transition:background .15s,color .15s; }
+a { color:inherit; text-underline-offset:4px; text-decoration-thickness:1px; }
+a:hover { color:var(--accent); }
+button,input { font:inherit; accent-color:var(--accent); }
+button { cursor:pointer; background:transparent; color:var(--text); border:1px solid var(--line); border-radius:999px; padding:7px 15px; }
+button:hover { background:var(--surface); }
+:focus-visible { outline:2px solid var(--accent); outline-offset:5px; }
+.skip-link { position:fixed; top:-100px; left:16px; padding:8px; background:var(--bg); z-index:10; }
+.skip-link:focus { top:12px; }
+.site-header,.site-footer { max-width:1120px; margin:auto; padding:28px 32px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+.brand { font-size:18px; font-weight:800; text-decoration:none; letter-spacing:-.7px; }
+.site-header nav { display:flex; gap:24px; align-items:center; font-size:13px; }
+main { max-width:var(--width); padding:64px 24px 96px; margin:auto; }
+h1,h2,h3 { line-height:1.2; font-weight:600; letter-spacing:-.045em; }
+h1 { font-size:clamp(36px,6vw,60px); margin:16px 0 24px; }
+h2 { font-size:30px; margin:64px 0 20px; }
+h3 { font-size:22px; margin:32px 0 16px; }
+p { margin:0 0 24px; }
+.eyebrow,.meta,figcaption,.site-footer { font-size:12px; color:var(--muted); }
+.eyebrow { letter-spacing:.12em; text-transform:uppercase; }
+.lead { font-size:21px; line-height:1.65; color:var(--muted); }
+.article-header { margin-bottom:48px; }
+.meta { display:flex; flex-wrap:wrap; gap:16px; }
+hr { border:0; border-top:1px solid var(--line); margin:48px 0; }
+figure { margin:36px 0; }
+img,svg,video,canvas { display:block; max-width:100%; height:auto; }
+figure img { width:100%; border-radius:4px; }
+figcaption { margin-top:12px; line-height:1.6; }
+blockquote,.note { margin:32px 0; border-left:2px solid var(--accent); padding:4px 0 4px 24px; color:var(--muted); }
+blockquote p:last-child,.note p:last-child { margin-bottom:0; }
+.interactive { border:1px solid var(--line); padding:28px; border-radius:6px; margin:32px 0; background:var(--surface); }
+.interactive h3 { margin-top:0; }
+.control { display:grid; grid-template-columns:1fr auto; gap:8px 16px; margin:20px 0; font-size:14px; }
+.control input { width:100%; grid-column:1/-1; }
+output { font-variant-numeric:tabular-nums; }
+.simulation { width:100%; aspect-ratio:2/1; margin:24px 0; color:var(--accent); }
+pre { background:#181b20; color:#dce1e9; padding:24px; border:1px solid #30353d; border-radius:6px; overflow:auto; font:14px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace; tab-size:2; }
+code { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; font-size:.86em; }
+:not(pre)>code { background:var(--surface); padding:2px 5px; border-radius:3px; }
+pre code { font-size:inherit; }
+.token-keyword { color:#c7a7ed; } .token-number { color:#eebc80; } .token-comment { color:#969fae; } .token-string { color:#a5c9a6; }
+.article-list { list-style:none; padding:0; margin:48px 0; }
+.article-list li { border-top:1px solid var(--line); padding:28px 0; }
+.article-list a { text-decoration:none; font-size:24px; font-weight:600; letter-spacing:-.03em; }
+.article-list p { font-size:15px; color:var(--muted); margin:12px 0 0; }
+.site-footer { border-top:1px solid var(--line); }
+@media(max-width:600px) { body { font-size:16px; } .site-header,.site-footer { padding:20px; } .site-header nav { gap:14px; } main { padding:40px 20px 64px; } h2 { margin-top:48px; } .lead { font-size:19px; } .interactive { padding:20px; } pre { padding:20px; } }
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after { transition:none!important; animation:none!important; scroll-behavior:auto!important; } }
