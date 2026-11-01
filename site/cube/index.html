@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Как нарисовать вращающийся 3D-куб в терминале: координаты, матрицы поворота, перспектива и растеризация с интерактивными схемами.">
+<title>3D-куб в терминале: математика по шагам — eleday</title>
+<script src="../assets/js/theme.js"></script>
+<link rel="stylesheet" href="../assets/css/main.css"><link rel="stylesheet" href="./article.css">
+<script src="./article.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">К содержанию</a>
+<header class="site-header"><a class="brand" href="../">eleday.</a><nav aria-label="Навигация"><a href="../#articles">Статьи</a><button type="button" data-theme-toggle>Сменить тему</button></nav></header>
+<main id="main"><article class="cube-article">
+<header class="article-header"><p class="eyebrow">Графика / Python / математика</p><h1>3D-куб.<br>Восемь точек и немного математики.</h1><p class="lead">У терминала нет глубины. Есть только строки и столбцы. Но если правильно расположить несколько символов, мы увидим вращающийся объёмный куб.</p><div class="meta"><span>От координат до кадра</span><span>10 минут + эксперименты</span></div></header>
+<p>Разберём код из видео как маленький графический движок. У него четыре задачи: описать форму, повернуть её, спроецировать на экран и соединить точки. Никаких 3D-библиотек — только координаты, синус и косинус.</p>
+<nav class="contents" aria-label="Содержание"><a href="#vertices">01 · Форма</a><a href="#rotation">02 · Поворот</a><a href="#projection">03 · Перспектива</a><a href="#raster">04 · Символы</a><a href="#source">05 · Код</a></nav>
+<section class="interactive" aria-labelledby="cube-lab-title"><h2 id="cube-lab-title">Куб в ваших руках</h2><p>Поверните куб вокруг двух осей. Расстояние до камеры меняет силу перспективы. Ниже разберём каждое действие.</p>
+<svg id="cube-view" viewBox="0 0 600 360" role="img" aria-labelledby="cube-title cube-desc"><title id="cube-title">Каркас куба</title><desc id="cube-desc">Куб повёрнут вокруг осей X и Y.</desc><g id="cube-lines"></g><g id="cube-dots"></g></svg>
+<label class="control" for="angle-x">Поворот вокруг X <output id="angle-x-out" for="angle-x">25°</output><input id="angle-x" type="range" min="-180" max="180" step="any" value="25"></label>
+<label class="control" for="angle-y">Поворот вокруг Y <output id="angle-y-out" for="angle-y">35°</output><input id="angle-y" type="range" min="-180" max="180" step="any" value="35"></label>
+<label class="control" for="distance">Расстояние до камеры <output id="distance-out" for="distance">5</output><input id="distance" type="range" min="3" max="9" step="0.1" value="5"></label>
+<div class="actions"><button id="play" type="button" aria-pressed="false">Вращать</button><button id="cube-reset" type="button">Сбросить куб</button></div>
+<p class="lab-caption" id="cube-state" aria-live="off">8 вершин · 12 рёбер</p><noscript><p>Для схем включите JavaScript. Все формулы, объяснения и Python-код доступны без него.</p></noscript></section>
+<h2 id="vertices">01. Сначала — форма</h2>
+<p>Поставим центр куба в начало координат. Каждая его вершина отстоит от центра на единицу вдоль каждой оси. Поэтому координаты <code>x</code>, <code>y</code> и <code>z</code> принимают только два значения: −1 или +1. Длина ребра такого куба равна 2.</p>
+<div class="equation" role="math" aria-label="Множество вершин: x, y и z равны минус единице или единице">(x, y, z), &nbsp; x, y, z ∈ {−1, +1}</div>
+<p>Для каждой из трёх координат есть два варианта. Всего <strong>2 × 2 × 2 = 8 вершин</strong>. Три вложенных цикла в <code>vertices</code> просто перебирают все сочетания.</p>
+<p>Теперь рёбра. Соседние вершины отличаются ровно одной координатой: например, (−1, −1, −1) и (+1, −1, −1). Если отличаются две координаты, это диагональ грани; если три — диагональ куба. Условие <code>sum(...) == 1</code> оставляет только соседей, а <code>j &gt; i</code> не даёт посчитать одну пару дважды.</p>
+<aside class="note"><p>Из каждой вершины выходит три ребра. Считаем 8 × 3 и делим на два, потому что у ребра два конца. Получаем <strong>12 рёбер</strong>.</p></aside>
+<h2 id="rotation">02. Поворот — это смена координат</h2>
+<p>Начнём с плоскости. Точка на окружности радиуса r имеет координаты <code>(r cos φ, r sin φ)</code>. При повороте на угол a она переходит в <code>(r cos(φ + a), r sin(φ + a))</code>. Раскрывая формулы суммы углов, получаем правило поворота.</p>
+<div class="equation" role="math" aria-label="u штрих равно u косинус a минус v синус a; v штрих равно u синус a плюс v косинус a">u′ = u cos a − v sin a<br>v′ = u sin a + v cos a</div>
+<section class="interactive" aria-labelledby="rotation-title"><h3 id="rotation-title">Один поворот в плоскости YZ</h3><p>Смотрим вдоль оси X. Точка начинает в (y, z) = (1, 0) и движется по окружности радиуса 1.</p>
+<svg viewBox="0 0 600 330" role="img" aria-labelledby="plane-title plane-desc"><title id="plane-title">Поворот в плоскости YZ</title><desc id="plane-desc">При нулевом угле точка находится на положительной полуоси Y.</desc><g class="diagram-muted"><path d="M140 165H460 M300 20V310"/><circle cx="300" cy="165" r="120" fill="none"/></g><text x="470" y="170">y</text><text x="310" y="25">z</text><path id="rotation-projection" class="diagram-guide" d="M420 165H300"/><path id="rotation-radius" d="M300 165L420 165"/><circle id="rotation-dot" cx="420" cy="165" r="6"/></svg>
+<label class="control" for="plane-angle">Угол a <output id="plane-angle-out" for="plane-angle">0°</output><input id="plane-angle" type="range" min="-180" max="180" value="0"></label><p id="plane-result" class="lab-caption">y′ = 1.000 · z′ = 0.000 · радиус = 1</p><button id="plane-reset" type="button">Сбросить поворот</button></section>
+<p>В трёхмерном пространстве вращение вокруг X оставляет <code>x</code> прежним, а пару <code>(y, z)</code> поворачивает по этому правилу. Затем вращение вокруг Y оставляет уже полученный <code>y</code> прежним и меняет <code>x</code> и <code>z</code>:</p>
+<div class="equation" role="math" aria-label="Поворот вокруг X, затем вокруг Y">y₁ = y cos a − z sin a<br>z₁ = y sin a + z cos a<br><br>x₂ = x cos a + z₁ sin a<br>z₂ = −x sin a + z₁ cos a<br>y₂ = y₁</div>
+<p>Знаки во втором повороте соответствуют выбранному направлению вращения вокруг Y. В матричной записи это <strong>p′ = R<sub>Y</sub>(a) R<sub>X</sub>(a) p</strong>: сначала применяется правая матрица. Матрица здесь — компактная запись линейных комбинаций координат.</p>
+<div class="matrix-pair"><div class="equation">R<sub>X</sub>(a) =<br><span class="matrix">1 &nbsp; 0 &nbsp; 0<br>0 &nbsp; cos a &nbsp; −sin a<br>0 &nbsp; sin a &nbsp; cos a</span></div><div class="equation">R<sub>Y</sub>(a) =<br><span class="matrix">cos a &nbsp; 0 &nbsp; sin a<br>0 &nbsp; 1 &nbsp; 0<br>−sin a &nbsp; 0 &nbsp; cos a</span></div></div>
+<p>Поворот сохраняет длины: для плоской пары <code>u′² + v′² = u² + v²</code>, поскольку <code>cos² a + sin² a = 1</code>. Поэтому куб не растягивается. Порядок поворотов при этом важен: вокруг X, затем Y — обычно другой результат, чем вокруг Y, затем X.</p>
+<p>В Python обе правые части присваивания <code>y, z = (...)</code> вычисляются до замены переменных. Иначе обновлённый y попал бы в вычисление z и испортил поворот. Функции <code>math.sin</code> и <code>math.cos</code> принимают радианы: 180° = π радиан.</p>
+<h2 id="projection">03. Как глубина становится размером</h2>
+<p>Мысленно поставим камеру в (0, 0, −5), направив её вдоль +Z. Тогда глубина точки относительно камеры равна <strong>d = z + 5</strong>. На экране дальние объекты должны выглядеть меньше.</p>
+<p>Это следует из подобия треугольников: отношение смещения на плоскости изображения к фокусному расстоянию равно отношению координаты точки к её глубине. Поэтому экранное смещение пропорционально <strong>x / d</strong> и <strong>y / d</strong>.</p>
+<div class="equation" role="math" aria-label="Масштаб равен 35 делить на z плюс 5">scale = 35 / (z + 5)<br>X = int(W / 2 + 2x · scale)<br>Y = int(H / 2 − y · scale)</div>
+<section class="interactive" aria-labelledby="depth-title"><h3 id="depth-title">Одинаковая высота, разная глубина</h3><p>Отрезок слева находится на глубине d = 3. Правый имеет ту же высоту в мире, но его можно отодвигать. Показаны их размеры после проекции.</p><svg viewBox="0 0 600 300" role="img" aria-labelledby="depth-svg-title depth-desc"><title id="depth-svg-title">Размер двух одинаковых отрезков на экране</title><desc id="depth-desc">При одинаковой глубине размеры совпадают.</desc><path class="diagram-guide" d="M60 150H540"/><path d="M190 50V250"/><path id="depth-line" d="M410 50V250"/><text x="150" y="285">d = 3</text><text id="depth-label" x="370" y="285">d = 3</text></svg>
+<label class="control" for="depth">Глубина правого отрезка <output id="depth-out" for="depth">3</output><input id="depth" type="range" min="3" max="9" step="0.1" value="3"></label><p id="depth-result" class="lab-caption">Правый отрезок: 100% высоты левого.</p><button id="depth-reset" type="button">Сбросить глубину</button></section>
+<p>Число 35 задаёт масштаб изображения в строках терминала. Смещение на <code>W / 2</code> и <code>H / 2</code> переносит начало координат в центр экрана. Минус перед y нужен потому, что математическая ось Y направлена вверх, а номера строк растут вниз.</p>
+<p>Множитель 2 по горизонтали компенсирует пропорции символа: ячейка терминала обычно примерно вдвое выше своей ширины. Это приближение зависит от шрифта терминала. <code>int</code> отбрасывает дробную часть и превращает координаты в индексы ячеек.</p>
+<aside class="note"><p>Делить на нулевую глубину нельзя. В исходном коде камера достаточно далеко: расстояние любой вершины до центра равно √3, поэтому z + 5 ≥ 5 − √3 &gt; 0 при любом повороте. Для произвольных сцен понадобилось бы отсечение объектов перед камерой.</p></aside>
+<h2 id="raster">04. Из геометрии — в символы</h2>
+<p>После проекции у каждого ребра есть два конца на плоскости: A и B. Чтобы пройти между ними, используем <strong>линейную интерполяцию</strong> — взвешенную сумму концов:</p>
+<div class="equation" role="math" aria-label="Точка P от t равна один минус t умножить на A плюс t умножить на B">P(t) = (1 − t)A + tB<br>x(t) = x₁ + (x₂ − x₁)t<br>y(t) = y₁ + (y₂ − y₁)t, &nbsp; 0 ≤ t ≤ 1</div>
+<p>При t = 0 получаем A, при t = 1 — B, при t = ½ — середину. Код выбирает <code>steps = max(|Δx|, |Δy|, 1)</code> и перебирает t с шагом <code>1 / steps</code>. По каждой оси перемещение за шаг не превышает одной ячейки. После округления записываем <code>█</code> в экранный массив.</p>
+<section class="interactive" aria-labelledby="line-title"><h3 id="line-title">Как линия попадает в сетку</h3><p>Тонкая линия — идеальный отрезок от A = (1, 1) до B = (14, 7). Закрашенные ячейки — результат округления пройденных точек. Ось Y направлена вниз, как в терминале.</p><svg id="raster-view" viewBox="0 0 600 330" role="img" aria-labelledby="raster-title raster-desc"><title id="raster-title">Пошаговая растеризация линии</title><desc id="raster-desc">Отрезок разбит на 13 шагов.</desc><g id="raster-grid"></g><g id="raster-cells"></g><path class="diagram-guide" d="M81 66L497 258"/><circle id="raster-dot" cx="81" cy="66" r="5"/></svg><label class="control" for="line-step">Шаг <output id="line-step-out" for="line-step">13 / 13</output><input id="line-step" type="range" min="0" max="13" value="13"></label><p id="line-result" class="lab-caption">t = 1 · последняя ячейка (14, 7)</p><button id="line-reset" type="button">Начать линию заново</button></section>
+<p>Число 1 в <code>max</code> защищает от деления на ноль, если оба конца ребра попали в одну ячейку. Проверка границ не даёт записать символ за пределами массива. Это простой алгоритм растеризации по интерполяции; округление может повторно закрасить одну ячейку, и это нормально.</p>
+<h2>Один кадр за другим</h2>
+<p>На каждом шаге цикла создаём пустую сетку 80 × 30, поворачиваем восемь вершин, получаем восемь проекций и рисуем двенадцать рёбер. Затем соединяем символы в строки и выводим кадр.</p>
+<p>Последовательность <code>\033[H</code> возвращает курсор в левый верхний угол: следующий кадр перезаписывает предыдущий. <code>\033[?25l</code> скрывает курсор. Очистка через <code>clear</code> выполняется только в начале. Анимация возникает потому, что угол a после каждого кадра увеличивается на 0.035 радиана.</p>
+<p>Пауза 0.03 секунды даёт верхнюю оценку около 33 кадров/с: вычисления и вывод тоже занимают время. При такой паузе угол меняется примерно на 1.17 радиана в секунду, но реальная скорость зависит от терминала. Каркас рисуется целиком, включая задние рёбра: скрытие невидимых линий этот код не выполняет.</p>
+<h2 id="source">05. Полный код</h2><p>Тот же алгоритм, без озвученных комментариев. <a href="./cube.py" download>Скачать cube.py</a>. Запуск: <code>python3 cube.py</code>; остановка: <code>Ctrl+C</code>.</p>
+<pre tabindex="0" aria-label="Полный Python-код вращающегося куба"><code><span class="token-keyword">import</span> math
+<span class="token-keyword">import</span> time
+<span class="token-keyword">import</span> os
+
+vertices = [
+    (x, y, z)
+    <span class="token-keyword">for</span> x <span class="token-keyword">in</span> (-<span class="token-number">1</span>, <span class="token-number">1</span>)
+    <span class="token-keyword">for</span> y <span class="token-keyword">in</span> (-<span class="token-number">1</span>, <span class="token-number">1</span>)
+    <span class="token-keyword">for</span> z <span class="token-keyword">in</span> (-<span class="token-number">1</span>, <span class="token-number">1</span>)
+]
+
+edges = [
+    (i, j)
+    <span class="token-keyword">for</span> i <span class="token-keyword">in</span> range(<span class="token-number">8</span>)
+    <span class="token-keyword">for</span> j <span class="token-keyword">in</span> range(i + <span class="token-number">1</span>, <span class="token-number">8</span>)
+    <span class="token-keyword">if</span> sum(vertices[i][k] != vertices[j][k] <span class="token-keyword">for</span> k <span class="token-keyword">in</span> range(<span class="token-number">3</span>)) == <span class="token-number">1</span>
+]
+
+W, H = <span class="token-number">80</span>, <span class="token-number">30</span>
+
+
+<span class="token-keyword">def</span> rotate(x, y, z, a):
+    y, z = (
+        y * math.cos(a) - z * math.sin(a),
+        y * math.sin(a) + z * math.cos(a)
+    )
+    x, z = (
+        x * math.cos(a) + z * math.sin(a),
+        -x * math.sin(a) + z * math.cos(a)
+    )
+    <span class="token-keyword">return</span> x, y, z
+
+
+<span class="token-keyword">def</span> project(point):
+    x, y, z = point
+    scale = <span class="token-number">35</span> / (z + <span class="token-number">5</span>)
+    <span class="token-keyword">return</span> (
+        int(W / <span class="token-number">2</span> + x * scale * <span class="token-number">2</span>),
+        int(H / <span class="token-number">2</span> - y * scale)
+    )
+
+
+<span class="token-keyword">def</span> line(screen, x1, y1, x2, y2):
+    steps = max(abs(x2 - x1), abs(y2 - y1), <span class="token-number">1</span>)
+    <span class="token-keyword">for</span> i <span class="token-keyword">in</span> range(steps + <span class="token-number">1</span>):
+        t = i / steps
+        x = round(x1 + (x2 - x1) * t)
+        y = round(y1 + (y2 - y1) * t)
+        <span class="token-keyword">if</span> <span class="token-number">0</span> &lt;= x &lt; W <span class="token-keyword">and</span> <span class="token-number">0</span> &lt;= y &lt; H:
+            screen[y][x] = <span class="token-string">&quot;█&quot;</span>
+
+
+os.system(<span class="token-string">&quot;clear&quot;</span>)
+print(<span class="token-string">&quot;\033[?25l&quot;</span>, end=<span class="token-string">&quot;&quot;</span>)
+a = <span class="token-number">0</span>
+
+<span class="token-keyword">while</span> <span class="token-keyword">True</span>:
+    screen = [[<span class="token-string">&quot; &quot;</span> <span class="token-keyword">for</span> _ <span class="token-keyword">in</span> range(W)] <span class="token-keyword">for</span> _ <span class="token-keyword">in</span> range(H)]
+    points = [project(rotate(*v, a)) <span class="token-keyword">for</span> v <span class="token-keyword">in</span> vertices]
+    <span class="token-keyword">for</span> i, j <span class="token-keyword">in</span> edges:
+        line(screen, *points[i], *points[j])
+    print(<span class="token-string">&quot;\033[H&quot;</span>, end=<span class="token-string">&quot;&quot;</span>)
+    print(<span class="token-string">&quot;\n&quot;</span>.join(<span class="token-string">&quot;&quot;</span>.join(row) <span class="token-keyword">for</span> row <span class="token-keyword">in</span> screen), end=<span class="token-string">&quot;&quot;</span>, flush=<span class="token-keyword">True</span>)
+    a += <span class="token-number">0.035</span>
+    time.sleep(<span class="token-number">0.03</span>)
+</code></pre>
+<aside class="note"><p>Для исходного варианта нужен терминал с поддержкой ANSI-последовательностей и команда <code>clear</code> (Linux/macOS). Окно должно вмещать 80 столбцов и 30 строк; небольшой запас помогает избежать прокрутки. После остановки курсор можно вернуть командой <code>printf '\033[?25h'</code>. Для постоянного использования стоит завернуть цикл в <code>try/finally</code> и восстанавливать курсор автоматически.</p></aside>
+<p>Теперь за вращающимся кубом виден весь путь: <strong>координаты → поворот → перспектива → ячейки → кадр</strong>. Смените вершины и рёбра — и тот же маленький движок нарисует другую каркасную фигуру.</p>
+<hr><p>Ещё материалы: <a href="https://t.me/eleday">Телеграм</a> · <a href="https://youtube.com/@eleday">YouTube</a></p><a href="../">← Все статьи</a>
+</article></main></body></html>

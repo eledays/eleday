@@ -1,0 +1,18 @@
+.cube-article .contents { display:flex; flex-wrap:wrap; gap:10px 24px; font-size:13px; margin:32px 0 48px; }
+.cube-article .contents a { text-decoration:none; color:var(--muted); }
+.cube-article .interactive h2 { margin:0 0 16px; font-size:24px; }
+.cube-article .interactive p { font-size:15px; }
+.cube-article .interactive svg { width:100%; margin:24px 0; overflow:hidden; color:var(--accent); }
+.cube-article svg path,.cube-article svg line { fill:none; stroke:currentColor; stroke-width:2; }
+.cube-article svg circle { fill:currentColor; stroke:currentColor; }
+.cube-article svg text { fill:var(--muted); font:14px Manrope, sans-serif; }
+.cube-article .diagram-muted { opacity:.22; }
+.cube-article .diagram-muted circle { fill:none; }
+.cube-article .diagram-guide { stroke-dasharray:5 5; opacity:.5; }
+.cube-article .lab-caption { color:var(--muted); font-size:13px; font-variant-numeric:tabular-nums; margin:20px 0 0; }
+.cube-article .actions { display:flex; flex-wrap:wrap; gap:12px; }
+.cube-article .equation { padding:24px 0; margin:24px 0; border-block:1px solid var(--line); text-align:center; font-size:clamp(14px,3.4vw,19px); line-height:1.9; overflow-x:auto; }
+.cube-article .matrix-pair { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.cube-article .matrix { display:inline-block; border-inline:1px solid var(--muted); padding:4px 12px; margin-top:12px; font-size:14px; white-space:nowrap; }
+.cube-article h2[id] { scroll-margin-top:24px; }
+@media(max-width:480px) { .cube-article .matrix-pair { grid-template-columns:1fr; gap:0; } }
