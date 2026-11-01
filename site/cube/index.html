@@ -1,66 +1,218 @@
 <!doctype html>
 <html lang="ru">
+
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Как нарисовать вращающийся 3D-куб в терминале: координаты, матрицы поворота, перспектива и растеризация с интерактивными схемами.">
-<title>3D-куб в терминале: математика по шагам — eleday</title>
-<script src="../assets/js/theme.js"></script>
-<link rel="stylesheet" href="../assets/css/main.css"><link rel="stylesheet" href="./article.css">
-<script src="./article.js" defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+        content="Как нарисовать вращающийся 3D-куб в терминале: координаты, матрицы поворота, перспектива и растеризация с интерактивными схемами.">
+    <title>3D-куб в терминале: математика по шагам — eleday</title>
+    <script src="../assets/js/theme.js"></script>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="./article.css">
+    <script src="./article.js" defer></script>
 </head>
+
 <body>
-<a class="skip-link" href="#main">К содержанию</a>
-<header class="site-header"><a class="brand" href="../">eleday.</a><nav aria-label="Навигация"><a href="../#articles">Статьи</a><button type="button" data-theme-toggle>Сменить тему</button></nav></header>
-<main id="main"><article class="cube-article">
-<header class="article-header"><h1>3D-куб.<br>Восемь точек и немного математики.</h1><p class="lead">У терминала нет глубины. Есть только строки и столбцы. Но если правильно расположить несколько символов, мы увидим вращающийся объёмный куб.</p></header>
-<p>Разберём код из видео как маленький графический движок. У него четыре задачи: описать форму, повернуть её, спроецировать на экран и соединить точки. Никаких 3D-библиотек — только координаты, синус и косинус.</p>
-<nav class="contents" aria-label="Содержание"><a href="#vertices">01 · Форма</a><a href="#rotation">02 · Поворот</a><a href="#projection">03 · Перспектива</a><a href="#raster">04 · Символы</a><a href="#source">05 · Код</a></nav>
-<section class="interactive" aria-labelledby="cube-lab-title"><h2 id="cube-lab-title">Куб в ваших руках</h2><p>Поверните куб вокруг двух осей. Расстояние до камеры меняет силу перспективы. Ниже разберём каждое действие.</p>
-<svg id="cube-view" viewBox="0 0 600 360" role="img" aria-labelledby="cube-title cube-desc"><title id="cube-title">Каркас куба</title><desc id="cube-desc">Куб повёрнут вокруг осей X и Y.</desc><g id="cube-lines"></g><g id="cube-dots"></g></svg>
-<label class="control" for="angle-x">Поворот вокруг X <output id="angle-x-out" for="angle-x">25°</output><input id="angle-x" type="range" min="-180" max="180" step="any" value="25"></label>
-<label class="control" for="angle-y">Поворот вокруг Y <output id="angle-y-out" for="angle-y">35°</output><input id="angle-y" type="range" min="-180" max="180" step="any" value="35"></label>
-<label class="control" for="distance">Расстояние до камеры <output id="distance-out" for="distance">5</output><input id="distance" type="range" min="3" max="9" step="0.1" value="5"></label>
-<div class="actions"><button id="play" type="button" aria-pressed="false">Вращать</button><button id="cube-reset" type="button">Сбросить куб</button></div>
-<p class="lab-caption" id="cube-state" aria-live="off">8 вершин · 12 рёбер</p><noscript><p>Для схем включите JavaScript. Все формулы, объяснения и Python-код доступны без него.</p></noscript></section>
-<h2 id="vertices">01. Сначала — форма</h2>
-<p>Поставим центр куба в начало координат. Каждая его вершина отстоит от центра на единицу вдоль каждой оси. Поэтому координаты <code>x</code>, <code>y</code> и <code>z</code> принимают только два значения: −1 или +1. Длина ребра такого куба равна 2.</p>
-<div class="equation" role="math" aria-label="Множество вершин: x, y и z равны минус единице или единице">(x, y, z), &nbsp; x, y, z ∈ {−1, +1}</div>
-<p>Для каждой из трёх координат есть два варианта. Всего <strong>2 × 2 × 2 = 8 вершин</strong>. Три вложенных цикла в <code>vertices</code> просто перебирают все сочетания.</p>
-<p>Теперь рёбра. Соседние вершины отличаются ровно одной координатой: например, (−1, −1, −1) и (+1, −1, −1). Если отличаются две координаты, это диагональ грани; если три — диагональ куба. Условие <code>sum(...) == 1</code> оставляет только соседей, а <code>j &gt; i</code> не даёт посчитать одну пару дважды.</p>
-<aside class="note"><p>Из каждой вершины выходит три ребра. Считаем 8 × 3 и делим на два, потому что у ребра два конца. Получаем <strong>12 рёбер</strong>.</p></aside>
-<h2 id="rotation">02. Поворот — это смена координат</h2>
-<p>Начнём с плоскости. Точка на окружности радиуса r имеет координаты <code>(r cos φ, r sin φ)</code>. При повороте на угол a она переходит в <code>(r cos(φ + a), r sin(φ + a))</code>. Раскрывая формулы суммы углов, получаем правило поворота.</p>
-<div class="equation" role="math" aria-label="u штрих равно u косинус a минус v синус a; v штрих равно u синус a плюс v косинус a">u′ = u cos a − v sin a<br>v′ = u sin a + v cos a</div>
-<section class="interactive" aria-labelledby="rotation-title"><h3 id="rotation-title">Один поворот в плоскости YZ</h3><p>Смотрим вдоль оси X. Точка начинает в (y, z) = (1, 0) и движется по окружности радиуса 1.</p>
-<svg viewBox="0 0 600 330" role="img" aria-labelledby="plane-title plane-desc"><title id="plane-title">Поворот в плоскости YZ</title><desc id="plane-desc">При нулевом угле точка находится на положительной полуоси Y.</desc><g class="diagram-muted"><path d="M140 165H460 M300 20V310"/><circle cx="300" cy="165" r="120" fill="none"/></g><text x="470" y="170">y</text><text x="310" y="25">z</text><path id="rotation-projection" class="diagram-guide" d="M420 165H300"/><path id="rotation-radius" d="M300 165L420 165"/><circle id="rotation-dot" cx="420" cy="165" r="6"/></svg>
-<label class="control" for="plane-angle">Угол a <output id="plane-angle-out" for="plane-angle">0°</output><input id="plane-angle" type="range" min="-180" max="180" value="0"></label><p id="plane-result" class="lab-caption">y′ = 1.000 · z′ = 0.000 · радиус = 1</p><button id="plane-reset" type="button">Сбросить поворот</button></section>
-<p>В трёхмерном пространстве вращение вокруг X оставляет <code>x</code> прежним, а пару <code>(y, z)</code> поворачивает по этому правилу. Затем вращение вокруг Y оставляет уже полученный <code>y</code> прежним и меняет <code>x</code> и <code>z</code>:</p>
-<div class="equation" role="math" aria-label="Поворот вокруг X, затем вокруг Y">y₁ = y cos a − z sin a<br>z₁ = y sin a + z cos a<br><br>x₂ = x cos a + z₁ sin a<br>z₂ = −x sin a + z₁ cos a<br>y₂ = y₁</div>
-<p>Знаки во втором повороте соответствуют выбранному направлению вращения вокруг Y. В матричной записи это <strong>p′ = R<sub>Y</sub>(a) R<sub>X</sub>(a) p</strong>: сначала применяется правая матрица. Матрица здесь — компактная запись линейных комбинаций координат.</p>
-<div class="matrix-pair"><div class="equation">R<sub>X</sub>(a) =<br><span class="matrix">1 &nbsp; 0 &nbsp; 0<br>0 &nbsp; cos a &nbsp; −sin a<br>0 &nbsp; sin a &nbsp; cos a</span></div><div class="equation">R<sub>Y</sub>(a) =<br><span class="matrix">cos a &nbsp; 0 &nbsp; sin a<br>0 &nbsp; 1 &nbsp; 0<br>−sin a &nbsp; 0 &nbsp; cos a</span></div></div>
-<p>Поворот сохраняет длины: для плоской пары <code>u′² + v′² = u² + v²</code>, поскольку <code>cos² a + sin² a = 1</code>. Поэтому куб не растягивается. Порядок поворотов при этом важен: вокруг X, затем Y — обычно другой результат, чем вокруг Y, затем X.</p>
-<p>В Python обе правые части присваивания <code>y, z = (...)</code> вычисляются до замены переменных. Иначе обновлённый y попал бы в вычисление z и испортил поворот. Функции <code>math.sin</code> и <code>math.cos</code> принимают радианы: 180° = π радиан.</p>
-<h2 id="projection">03. Как глубина становится размером</h2>
-<p>Мысленно поставим камеру в (0, 0, −5), направив её вдоль +Z. Тогда глубина точки относительно камеры равна <strong>d = z + 5</strong>. На экране дальние объекты должны выглядеть меньше.</p>
-<p>Это следует из подобия треугольников: отношение смещения на плоскости изображения к фокусному расстоянию равно отношению координаты точки к её глубине. Поэтому экранное смещение пропорционально <strong>x / d</strong> и <strong>y / d</strong>.</p>
-<div class="equation" role="math" aria-label="Масштаб равен 35 делить на z плюс 5">scale = 35 / (z + 5)<br>X = int(W / 2 + 2x · scale)<br>Y = int(H / 2 − y · scale)</div>
-<section class="interactive" aria-labelledby="depth-title"><h3 id="depth-title">Одинаковая высота, разная глубина</h3><p>Отрезок слева находится на глубине d = 3. Правый имеет ту же высоту в мире, но его можно отодвигать. Показаны их размеры после проекции.</p><svg viewBox="0 0 600 300" role="img" aria-labelledby="depth-svg-title depth-desc"><title id="depth-svg-title">Размер двух одинаковых отрезков на экране</title><desc id="depth-desc">При одинаковой глубине размеры совпадают.</desc><path class="diagram-guide" d="M60 150H540"/><path d="M190 50V250"/><path id="depth-line" d="M410 50V250"/><text x="150" y="285">d = 3</text><text id="depth-label" x="370" y="285">d = 3</text></svg>
-<label class="control" for="depth">Глубина правого отрезка <output id="depth-out" for="depth">3</output><input id="depth" type="range" min="3" max="9" step="0.1" value="3"></label><p id="depth-result" class="lab-caption">Правый отрезок: 100% высоты левого.</p><button id="depth-reset" type="button">Сбросить глубину</button></section>
-<p>Число 35 задаёт масштаб изображения в строках терминала. Смещение на <code>W / 2</code> и <code>H / 2</code> переносит начало координат в центр экрана. Минус перед y нужен потому, что математическая ось Y направлена вверх, а номера строк растут вниз.</p>
-<p>Множитель 2 по горизонтали компенсирует пропорции символа: ячейка терминала обычно примерно вдвое выше своей ширины. Это приближение зависит от шрифта терминала. <code>int</code> отбрасывает дробную часть и превращает координаты в индексы ячеек.</p>
-<aside class="note"><p>Делить на нулевую глубину нельзя. В исходном коде камера достаточно далеко: расстояние любой вершины до центра равно √3, поэтому z + 5 ≥ 5 − √3 &gt; 0 при любом повороте. Для произвольных сцен понадобилось бы отсечение объектов перед камерой.</p></aside>
-<h2 id="raster">04. Из геометрии — в символы</h2>
-<p>После проекции у каждого ребра есть два конца на плоскости: A и B. Чтобы пройти между ними, используем <strong>линейную интерполяцию</strong> — взвешенную сумму концов:</p>
-<div class="equation" role="math" aria-label="Точка P от t равна один минус t умножить на A плюс t умножить на B">P(t) = (1 − t)A + tB<br>x(t) = x₁ + (x₂ − x₁)t<br>y(t) = y₁ + (y₂ − y₁)t, &nbsp; 0 ≤ t ≤ 1</div>
-<p>При t = 0 получаем A, при t = 1 — B, при t = ½ — середину. Код выбирает <code>steps = max(|Δx|, |Δy|, 1)</code> и перебирает t с шагом <code>1 / steps</code>. По каждой оси перемещение за шаг не превышает одной ячейки. После округления записываем <code>█</code> в экранный массив.</p>
-<section class="interactive" aria-labelledby="line-title"><h3 id="line-title">Как линия попадает в сетку</h3><p>Тонкая линия — идеальный отрезок от A = (1, 1) до B = (14, 7). Закрашенные ячейки — результат округления пройденных точек. Ось Y направлена вниз, как в терминале.</p><svg id="raster-view" viewBox="0 0 600 330" role="img" aria-labelledby="raster-title raster-desc"><title id="raster-title">Пошаговая растеризация линии</title><desc id="raster-desc">Отрезок разбит на 13 шагов.</desc><g id="raster-grid"></g><g id="raster-cells"></g><path class="diagram-guide" d="M81 66L497 258"/><circle id="raster-dot" cx="81" cy="66" r="5"/></svg><label class="control" for="line-step">Шаг <output id="line-step-out" for="line-step">13 / 13</output><input id="line-step" type="range" min="0" max="13" value="13"></label><p id="line-result" class="lab-caption">t = 1 · последняя ячейка (14, 7)</p><button id="line-reset" type="button">Начать линию заново</button></section>
-<p>Число 1 в <code>max</code> защищает от деления на ноль, если оба конца ребра попали в одну ячейку. Проверка границ не даёт записать символ за пределами массива. Это простой алгоритм растеризации по интерполяции; округление может повторно закрасить одну ячейку, и это нормально.</p>
-<h2>Один кадр за другим</h2>
-<p>На каждом шаге цикла создаём пустую сетку 80 × 30, поворачиваем восемь вершин, получаем восемь проекций и рисуем двенадцать рёбер. Затем соединяем символы в строки и выводим кадр.</p>
-<p>Последовательность <code>\033[H</code> возвращает курсор в левый верхний угол: следующий кадр перезаписывает предыдущий. <code>\033[?25l</code> скрывает курсор. Очистка через <code>clear</code> выполняется только в начале. Анимация возникает потому, что угол a после каждого кадра увеличивается на 0.035 радиана.</p>
-<p>Пауза 0.03 секунды даёт верхнюю оценку около 33 кадров/с: вычисления и вывод тоже занимают время. При такой паузе угол меняется примерно на 1.17 радиана в секунду, но реальная скорость зависит от терминала. Каркас рисуется целиком, включая задние рёбра: скрытие невидимых линий этот код не выполняет.</p>
-<h2 id="source">05. Полный код</h2><p>Тот же алгоритм, без озвученных комментариев. <a href="./cube.py" download>Скачать cube.py</a>. Запуск: <code>python3 cube.py</code>; остановка: <code>Ctrl+C</code>.</p>
-<pre tabindex="0" aria-label="Полный Python-код вращающегося куба"><code><span class="token-keyword">import</span> math
+    <a class="skip-link" href="#main">К содержанию</a>
+    <header class="site-header"><a class="brand" href="../">eleday.</a>
+        <nav aria-label="Навигация"><a href="../#articles">Статьи</a><button type="button" data-theme-toggle>Сменить
+                тему</button></nav>
+    </header>
+    <main id="main">
+        <article class="cube-article">
+            <header class="article-header">
+                <h1>3D-куб в терминале на Python.</h1>
+                <p class="lead">Создаем объемный куб, крутим его и отображаем в терминале.</p>
+            </header>
+            <p>Разберём код из <a href="https://youtube.com/shorts/cLBtAx_iZU8">видео</a> как маленький графический движок. У него четыре задачи: описать форму, повернуть её, спроецировать на экран и соединить точки. Никаких 3D-библиотек — только координаты, синус и косинус. 
+            </p>
+            <nav class="contents" aria-label="Содержание"><a href="#vertices">01 · Форма</a><a href="#rotation">02 ·
+                    Поворот</a><a href="#projection">03 · Перспектива</a><a href="#raster">04 · Символы</a><a
+                    href="#source">05 · Код</a></nav>
+            <section class="interactive" aria-labelledby="cube-lab-title">
+                <h2 id="cube-lab-title">Крутим-вертим кубик.</h2>
+                <p>Можно покрутить ползунки, посмотреть, что будет.</p>
+                <svg id="cube-view" viewBox="0 0 600 360" role="img" aria-labelledby="cube-title cube-desc">
+                    <title id="cube-title">Каркас куба</title>
+                    <desc id="cube-desc">Куб повёрнут вокруг осей X и Y.</desc>
+                    <g id="cube-lines"></g>
+                    <g id="cube-dots"></g>
+                </svg>
+                <label class="control" for="angle-x">Поворот вокруг X <output id="angle-x-out"
+                        for="angle-x">25°</output><input id="angle-x" type="range" min="-180" max="180" step="any"
+                        value="25"></label>
+                <label class="control" for="angle-y">Поворот вокруг Y <output id="angle-y-out"
+                        for="angle-y">35°</output><input id="angle-y" type="range" min="-180" max="180" step="any"
+                        value="35"></label>
+                <label class="control" for="distance">Расстояние до камеры <output id="distance-out"
+                        for="distance">5</output><input id="distance" type="range" min="3" max="9" step="0.1"
+                        value="5"></label>
+                <div class="actions"><button id="play" type="button" aria-pressed="false">Вращать</button><button
+                        id="cube-reset" type="button">Сбросить куб</button></div>
+                <p class="lab-caption" id="cube-state" aria-live="off">8 вершин · 12 рёбер</p><noscript>
+                    <p>Для схем включите JavaScript. Все формулы, объяснения и Python-код доступны без него.</p>
+                </noscript>
+            </section>
+            <h2 id="vertices">01. Сначала — форма</h2>
+            <p>Представим трёхмерное пространство (каждая точка в нём задаётся тремя координатами <code>x</code>, <code>y</code>, <code>z</code>). В начале координат (0, 0, 0) поместим центр нашего куба, а вершины получат координаты -1 или 1. С помощью вложенных циклов получим 2 * 2 * 2 = 8 вершин.</p>
+            <pre tabindex="0" aria-label="Фрагмент Python-кода"><code>vertices = [
+    (x, y, z)
+    <span class="token-keyword">for</span> x <span class="token-keyword">in</span> (-<span class="token-number">1</span>, <span class="token-number">1</span>)
+    <span class="token-keyword">for</span> y <span class="token-keyword">in</span> (-<span class="token-number">1</span>, <span class="token-number">1</span>)
+    <span class="token-keyword">for</span> z <span class="token-keyword">in</span> (-<span class="token-number">1</span>, <span class="token-number">1</span>)
+]
+</code></pre>
+            <pre tabindex="0" aria-label="Фрагмент Python-кода"><code><span class="token-comment"># vertices = [</span>
+<span class="token-comment">#    (-1, -1, -1),</span>
+<span class="token-comment">#    (-1, -1, 1),</span>
+<span class="token-comment">#    (-1, 1, -1),</span>
+<span class="token-comment">#    ...</span>
+<span class="token-comment"># ]</span>
+</code></pre>
+            <p>Теперь нужны рёбра — линии, соединяющие соседние вершины. Как понять, что линия является именно ребром, а не диагональю грани или куба? Нужно посмотреть, сколько координат вершин отличаются. Если только одна — это ребро. Если две — диагональ грани. Если три — диагональ куба.</p>
+            <figure class="cube-examples"><div class="cube-example-grid"><div><svg viewBox="0 0 240 220" role="img" aria-label="Ребро: отличаются 1 координата"><g class="example-frame"><path d="M40 174L150 174"/><path d="M150 174L150 64"/><path d="M150 64L40 64"/><path d="M40 64L40 174"/><path d="M85 134L195 134"/><path d="M195 134L195 24"/><path d="M195 24L85 24"/><path d="M85 24L85 134"/><path d="M40 174L85 134"/><path d="M150 174L195 134"/><path d="M150 64L195 24"/><path d="M40 64L85 24"/></g><path class="example-highlight" d="M40 174L150 174"/><circle cx="40" cy="174" r="4"/><circle cx="150" cy="174" r="4"/></svg><strong>Ребро</strong><span>1 координата</span></div><div><svg viewBox="0 0 240 220" role="img" aria-label="Диагональ грани: отличаются 2 координаты"><g class="example-frame"><path d="M40 174L150 174"/><path d="M150 174L150 64"/><path d="M150 64L40 64"/><path d="M40 64L40 174"/><path d="M85 134L195 134"/><path d="M195 134L195 24"/><path d="M195 24L85 24"/><path d="M85 24L85 134"/><path d="M40 174L85 134"/><path d="M150 174L195 134"/><path d="M150 64L195 24"/><path d="M40 64L85 24"/></g><path class="example-highlight" d="M40 174L150 64"/><circle cx="40" cy="174" r="4"/><circle cx="150" cy="64" r="4"/></svg><strong>Диагональ грани</strong><span>2 координаты</span></div><div><svg viewBox="0 0 240 220" role="img" aria-label="Диагональ куба: отличаются 3 координаты"><g class="example-frame"><path d="M40 174L150 174"/><path d="M150 174L150 64"/><path d="M150 64L40 64"/><path d="M40 64L40 174"/><path d="M85 134L195 134"/><path d="M195 134L195 24"/><path d="M195 24L85 24"/><path d="M85 24L85 134"/><path d="M40 174L85 134"/><path d="M150 174L195 134"/><path d="M150 64L195 24"/><path d="M40 64L85 24"/></g><path class="example-highlight" d="M40 174L195 24"/><circle cx="40" cy="174" r="4"/><circle cx="195" cy="24" r="4"/></svg><strong>Диагональ куба</strong><span>3 координаты</span></div></div></figure>
+            <p>С помощью вот такого цикла создадим список рёбер. Каждое ребро — два индекса вершин куба.</p>
+            <pre tabindex="0" aria-label="Фрагмент Python-кода"><code>edges = [
+    (i, j)
+    <span class="token-keyword">for</span> i <span class="token-keyword">in</span> range(<span class="token-number">8</span>)
+    <span class="token-keyword">for</span> j <span class="token-keyword">in</span> range(i + <span class="token-number">1</span>, <span class="token-number">8</span>)
+    <span class="token-keyword">if</span> sum(vertices[i][k] != vertices[j][k] <span class="token-keyword">for</span> k <span class="token-keyword">in</span> range(<span class="token-number">3</span>)) == <span class="token-number">1</span>
+]
+</code></pre>
+            <pre tabindex="0" aria-label="Фрагмент Python-кода"><code><span class="token-comment"># edges = [(0, 1), (0, 2), (0, 4), (1, 3), ...]</span>
+</code></pre>
+            <h2 id="rotation">02. Поворот — это смена координат</h2>
+            <p>Теперь куб нужно повернуть. Чтобы это сделать, нужно по некоторым правилам поменять координаты вершин: провернуть их вдоль окружности.</p>
+            <p>Начнём с поворота на плоскости. Назовём координаты точки <code>u</code> и <code>v</code>, а угол поворота — <code>a</code>. Синус и косинус помогут посчитать, куда переедет точка. Для точки на окружности радиуса 1 косинус угла даёт координату по горизонтали, а синус — по вертикали. При 0° это (1, 0), при 90° — (0, 1). Для произвольной точки правило выглядит так:</p>
+            <div class="equation" role="math">u′ = u cos a − v sin a<br>v′ = u sin a + v cos a</div>
+            <p>Почему в формуле участвуют обе старые координаты? После поворота и горизонтальное, и вертикальное смещение точки влияют на её новое положение. Косинус и синус задают доли каждого смещения, которые попадут на новые оси. <code>u′</code> и <code>v′</code> означают новые координаты. При нулевом угле cos <code>a</code> = 1, sin <code>a</code> = 0 — точка остаётся на месте. При 90° cos <code>a</code> = 0, sin <code>a</code> = 1: получаем <code>u′</code> = −<code>v</code>, <code>v′</code> = <code>u</code>.</p>
+            <section class="interactive" aria-labelledby="rotation-title">
+                <h3 id="rotation-title">Поворот в плоскости YZ</h3>
+                <p>Смотрим на куб вдоль оси X. Покрутим точку, которая начинает в (1, 0)</p>
+                <svg viewBox="0 0 600 330" role="img" aria-labelledby="plane-title plane-desc">
+                    <title id="plane-title">Поворот в плоскости YZ</title>
+                    <desc id="plane-desc">При нулевом угле точка находится на положительной полуоси Y.</desc>
+                    <g class="diagram-muted">
+                        <path d="M140 165H460 M300 20V310" />
+                        <circle cx="300" cy="165" r="120" fill="none" />
+                    </g><text x="470" y="170">y</text><text x="310" y="25">z</text>
+                    <path id="rotation-projection" class="diagram-guide" d="M420 165H300" />
+                    <path id="rotation-radius" d="M300 165L420 165" />
+                    <circle id="rotation-dot" cx="420" cy="165" r="6" />
+                </svg>
+                <label class="control" for="plane-angle">Угол a <output id="plane-angle-out"
+                        for="plane-angle">0°</output><input id="plane-angle" type="range" min="-180" max="180"
+                        value="0"></label>
+                <p id="plane-result" class="lab-caption">y′ = 1.000 · z′ = 0.000 · радиус = 1</p><button
+                    id="plane-reset" type="button">Сбросить поворот</button>
+            </section>
+            <p>Вернёмся к кубу. Когда крутим его вокруг <code>X</code>, координата <code>x</code> у каждой точки не меняется. Меняются только <code>y</code> и <code>z</code> — как на схеме выше. Затем крутим вокруг <code>Y</code>: теперь <code>y</code> остаётся прежним, а <code>x</code> и <code>z</code> меняются. Применяем два поворота по очереди:</p>
+            <div class="equation" role="math">y₁ = y cos a − z sin a<br>z₁ = y sin a + z cos a</div>
+            <div class="equation" role="math">x₂ = x cos a + z₁ sin a<br>z₂ = −x sin a + z₁ cos a<br>y₂ = y₁</div>
+            <p>Здесь <code>y₁</code> и <code>z₁</code> — координаты после первого поворота, <code>x₂</code> и <code>z₂</code> — после второго. Знаки плюс и минус задают, в какую сторону вращаем точку.</p>
+            <p>Эти же вычисления можно записать таблицами чисел — матрицами. В каждой строке лежит рецепт для одной новой координаты: умножаем три числа строки на <code>x</code>, <code>y</code> и <code>z</code>, затем складываем. Например, строка (0, cos <code>a</code>, −sin <code>a</code>) даёт 0 · <code>x</code> + <code>y</code> cos <code>a</code> − <code>z</code> sin <code>a</code>. Это как раз наша формула для <code>y₁</code>:</p>
+            <div class="matrix-pair"><div class="matrix-equation"><span>R<sub>X</sub>(a) =</span><div class="matrix-grid" role="table" aria-label="Матрица поворота вокруг X"><div role="row"><span role="cell">1</span><span role="cell">0</span><span role="cell">0</span></div><div role="row"><span role="cell">0</span><span role="cell">cos a</span><span role="cell">−sin a</span></div><div role="row"><span role="cell">0</span><span role="cell">sin a</span><span role="cell">cos a</span></div></div></div><div class="matrix-equation"><span>R<sub>Y</sub>(a) =</span><div class="matrix-grid" role="table" aria-label="Матрица поворота вокруг Y"><div role="row"><span role="cell">cos a</span><span role="cell">0</span><span role="cell">sin a</span></div><div role="row"><span role="cell">0</span><span role="cell">1</span><span role="cell">0</span></div><div role="row"><span role="cell">−sin a</span><span role="cell">0</span><span role="cell">cos a</span></div></div></div></div>
+            <p>Две матрицы соответствуют двум шагам: <code>RX</code> поворачивает вокруг <code>X</code>, <code>RY</code> — вокруг <code>Y</code>. Их можно записать одной строкой: <code>p′</code> = <code>RY(a)</code> <code>RX(a)</code> <code>p</code>. Здесь <code>p</code> — исходная точка. Читаем справа налево: берём точку, поворачиваем вокруг <code>X</code>, затем вокруг <code>Y</code>.</p>
+            <p>При этом куб не должен растягиваться. Синус и косинус подобраны так, что расстояния при повороте сохраняются.</p>
+            <p>В коде делаем ровно то же самое: сначала считаем новые <code>y</code> и <code>z</code>, затем <code>x</code> и <code>z</code>. Запись <code>y, z = (...)</code> удобна тем, что Python сначала посчитает обе новые координаты из старых и только потом заменит значения.</p>
+            <p>Ещё момент: <code>math.sin</code> и <code>math.cos</code> ждут угол в радианах. Это другая единица измерения угла: полный оборот — 2π радиан, половина оборота — π. Чтобы перевести градусы в радианы, умножаем их на π / 180. В нашем цикле угол сразу задаётся в радианах.</p>
+            <pre tabindex="0" aria-label="Фрагмент Python-кода"><code><span class="token-keyword">def</span> rotate(x, y, z, a):
+    y, z = (
+        y * math.cos(a) - z * math.sin(a),
+        y * math.sin(a) + z * math.cos(a)
+    )
+    x, z = (
+        x * math.cos(a) + z * math.sin(a),
+        -x * math.sin(a) + z * math.cos(a)
+    )
+    <span class="token-keyword">return</span> x, y, z
+</code></pre>
+            <h2 id="projection">03. Как глубина становится размером</h2>
+            <p>Крутить точки научились. Теперь нужно показать их на плоском экране. Представим, что смотрим на куб через камеру. Куб стоит в центре, а камера — в точке (0, 0, −5) и смотрит вдоль оси <code>Z</code>. Между ней и центром куба 5 единиц.</p>
+            <p>У точки с координатой <code>z</code> = −1 расстояние по направлению взгляда будет 4, а у точки с <code>z</code> = +1 — 6. В общем виде эта глубина равна <code>d</code> = <code>z</code> + 5.</p>
+            <p>Дальние предметы выглядят меньше. Здесь делаем так же: делим <code>x</code> и <code>y</code> на глубину. Если отодвинуть предмет вдвое дальше, его ширина и высота на изображении уменьшатся вдвое. Это и есть перспективная проекция — способ перенести объёмную сцену на плоскость с учётом расстояния.</p>
+            <p>Почему именно делим? Представьте луч от камеры к точке. На вдвое большем расстоянии тот же луч отклонится от центра вдвое сильнее. Значит, чтобы узнать положение точки на одном и том же экране, нужно убрать влияние расстояния: разделить её смещение на глубину. Дальше остаётся подобрать размер картинки:</p>
+            <div class="equation" role="math">scale = 35 / (z + 5)<br>X = int(W / 2 + 2x · scale)<br>Y = int(H / 2 − y · scale)</div>
+            <section class="interactive" aria-labelledby="depth-title">
+                <h3 id="depth-title">Одинаковая высота, разная глубина</h3>
+                <p>Слева — отрезок на глубине 3. Справа — такой же, но его можно отодвигать. Поставьте глубину 6: правый станет вдвое меньше на экране, хотя сам отрезок мы не меняли.</p><svg viewBox="0 0 600 300" role="img"
+                    aria-labelledby="depth-svg-title depth-desc">
+                    <title id="depth-svg-title">Размер двух одинаковых отрезков на экране</title>
+                    <desc id="depth-desc">При одинаковой глубине размеры совпадают.</desc>
+                    <path class="diagram-guide" d="M60 150H540" />
+                    <path d="M190 50V250" />
+                    <path id="depth-line" d="M410 50V250" /><text x="150" y="285">d = 3</text><text id="depth-label"
+                        x="370" y="285">d = 3</text>
+                </svg>
+                <label class="control" for="depth">Глубина правого отрезка <output id="depth-out"
+                        for="depth">3</output><input id="depth" type="range" min="3" max="9" step="0.1"
+                        value="3"></label>
+                <p id="depth-result" class="lab-caption">Правый отрезок: 100% высоты левого.</p><button id="depth-reset"
+                    type="button">Сбросить глубину</button>
+            </section>
+            <p>Число 35 подбирает общий размер картинки: увеличим его — куб станет крупнее. Теперь нужно разместить картинку посередине терминала. Его ширина <code>W</code> = 80 символов, высота <code>H</code> = 30 строк. Поэтому к горизонтальной координате прибавляем <code>W</code> / 2, а к вертикальной — <code>H</code> / 2.</p>
+            <p>Перед <code>y</code> стоит минус. В обычной системе координат положительный <code>y</code> идёт вверх, а в терминале номер строки растёт вниз. Вычитаем <code>y</code>, чтобы верх куба остался сверху.</p>
+            <p>А почему по горизонтали ещё умножаем на 2? Ячейка символа в терминале обычно вытянута вверх: её высота примерно вдвое больше ширины. Растягиваем изображение по горизонтали, чтобы куб не выглядел сжатым. Для другого шрифта этот множитель можно подстроить.</p>
+            <p>В конце вызываем <code>int</code>: он убирает дробную часть. Нам нужны целые номера столбца и строки — символ нельзя поставить между двумя ячейками.</p>
+            <pre tabindex="0" aria-label="Фрагмент Python-кода"><code><span class="token-keyword">def</span> project(point):
+    x, y, z = point
+    scale = <span class="token-number">35</span> / (z + <span class="token-number">5</span>)
+    <span class="token-keyword">return</span> (
+        int(W / <span class="token-number">2</span> + x * scale * <span class="token-number">2</span>),
+        int(H / <span class="token-number">2</span> - y * scale)
+    )
+</code></pre>
+            <p>Точка не должна попадать в плоскость камеры: её глубина станет нулевой, а делить на ноль нельзя. Здесь камера стоит с запасом. От центра куба до любой вершины примерно 1.73 единицы (точно — √3), а до камеры — 5. Поэтому все вершины при любом повороте остаются перед камерой. Для более сложной сцены пришлось бы отдельно обрабатывать точки слишком близко к камере и за ней.</p>
+            <h2 id="raster">04. Из геометрии — в символы</h2>
+            <p>Теперь у нас есть точки на экране. Осталось соединить каждую пару, которая образует ребро. Но терминал умеет показывать только отдельные символы. Нужно решить, какие ячейки закрасить между началом <code>A</code> и концом <code>B</code>.</p>
+            <p>Будем постепенно идти от <code>A</code> к <code>B</code>. Обозначим пройденную долю пути буквой <code>t</code>: 0 — ещё стоим в начале, 0.5 — дошли до середины, 1 — пришли в конец. Координаты любой точки на этом пути считаются так. Такой способ называется линейной интерполяцией:</p>
+            <div class="equation" role="math">P(t) = (1 − t)A + tB<br>x(t) = x₁ + (x₂ − x₁)t<br>y(t) = y₁ + (y₂ − y₁)t,   0 ≤ t ≤ 1</div>
+            <p>Например, идём от <code>x</code> = 2 до <code>x</code> = 10. Разница равна 8. На четверти пути получим 2 + 8 × 0.25 = 4. С координатой <code>y</code> делаем то же самое.</p>
+            <p>Осталось выбрать количество шагов. Если по горизонтали нужно пройти 13 ячеек, а по вертикали 6, делаем 13 шагов — берём большее из двух расстояний. Тогда за один шаг ни по одной оси не перепрыгнем больше одной ячейки.</p>
+            <section class="interactive" aria-labelledby="line-title">
+                <h3 id="line-title">Как линия попадает в сетку</h3>
+                <p>Пойдём от A = (1, 1) к B = (14, 7). Тонкая линия показывает точный путь, закрашенные ячейки — куда попадут символы после округления. Уменьшите ползунок до нуля и двигайте вправо: линия будет собираться по шагам.</p><svg id="raster-view"
+                    viewBox="0 0 600 330" role="img" aria-labelledby="raster-title raster-desc">
+                    <title id="raster-title">Пошаговая растеризация линии</title>
+                    <desc id="raster-desc">Отрезок разбит на 13 шагов.</desc>
+                    <g id="raster-grid"></g>
+                    <g id="raster-cells"></g>
+                    <path class="diagram-guide" d="M81 66L497 258" />
+                    <circle id="raster-dot" cx="81" cy="66" r="5" />
+                </svg><label class="control" for="line-step">Шаг <output id="line-step-out" for="line-step">13 /
+                        13</output><input id="line-step" type="range" min="0" max="13" value="13"></label>
+                <p id="line-result" class="lab-caption">t = 1 · последняя ячейка (14, 7)</p><button id="line-reset"
+                    type="button">Начать линию заново</button>
+            </section>
+            <p>Перед записью символа проверяем, что <code>x</code> и <code>y</code> находятся внутри экрана. Если часть ребра вышла за край, просто не рисуем её. Иногда из-за округления несколько шагов попадают в одну ячейку — повторно ставим туда тот же символ, ничего страшного. Перевод линии в набор ячеек называется растеризацией.</p>
+            <pre tabindex="0" aria-label="Фрагмент Python-кода"><code><span class="token-keyword">def</span> line(screen, x1, y1, x2, y2):
+    steps = max(abs(x2 - x1), abs(y2 - y1), <span class="token-number">1</span>)
+    <span class="token-keyword">for</span> i <span class="token-keyword">in</span> range(steps + <span class="token-number">1</span>):
+        t = i / steps
+        x = round(x1 + (x2 - x1) * t)
+        y = round(y1 + (y2 - y1) * t)
+        <span class="token-keyword">if</span> <span class="token-number">0</span> &lt;= x &lt; W <span class="token-keyword">and</span> <span class="token-number">0</span> &lt;= y &lt; H:
+            screen[y][x] = <span class="token-string">&quot;█&quot;</span>
+</code></pre>
+            <h2>Один кадр за другим</h2>
+            <p>Теперь собираем всё в цикл. Создаём экран — список из 30 строк, в каждой по 80 пробелов. Для каждой вершины сначала вызываем <code>rotate</code>, затем <code>project</code>. Получаем восемь точек на экране и соединяем нужные пары через <code>line</code>.</p>
+            <p>Выводим кадр, немного увеличиваем угол и повторяем. Перед новым кадром отправляем в терминал <code>\033[H</code> — команду вернуть курсор в левый верхний угол. Поэтому кадры не идут бесконечной лентой вниз, а рисуются друг поверх друга. Команда <code>\033[?25l</code> скрывает курсор, чтобы он не мешал, а <code>clear</code> очищает экран перед запуском.</p>
+            <p>После кадра прибавляем к углу 0.035 радиана — примерно 2°. Чем больше прибавка, тем быстрее вращается куб. Затем <code>time.sleep(0.03)</code> делает паузу в 0.03 секунды. Получается около 33 кадров в секунду или меньше: вычисления и вывод тоже занимают время.</p>
+            <p>Задние рёбра мы тоже рисуем. Поэтому куб выглядит как проволочный каркас: грани ничего не закрывают. Для нашего примера этого достаточно.</p>
+            <pre tabindex="0" aria-label="Фрагмент Python-кода"><code><span class="token-keyword">while</span> <span class="token-keyword">True</span>:
+    screen = [[<span class="token-string">&quot; &quot;</span> <span class="token-keyword">for</span> _ <span class="token-keyword">in</span> range(W)] <span class="token-keyword">for</span> _ <span class="token-keyword">in</span> range(H)]
+    points = [project(rotate(*v, a)) <span class="token-keyword">for</span> v <span class="token-keyword">in</span> vertices]
+    <span class="token-keyword">for</span> i, j <span class="token-keyword">in</span> edges:
+        line(screen, *points[i], *points[j])
+    print(<span class="token-string">&quot;\033[H&quot;</span>, end=<span class="token-string">&quot;&quot;</span>)
+    print(<span class="token-string">&quot;\n&quot;</span>.join(<span class="token-string">&quot;&quot;</span>.join(row) <span class="token-keyword">for</span> row <span class="token-keyword">in</span> screen), end=<span class="token-string">&quot;&quot;</span>, flush=<span class="token-keyword">True</span>)
+    a += <span class="token-number">0.035</span>
+    time.sleep(<span class="token-number">0.03</span>)
+</code></pre>
+            <h2 id="source">05. Полный код</h2>
+            <p>Собираем всё вместе. <a href="./cube.py" download>Скачать cube.py</a>. Запускаем командой <code>python3 cube.py</code>, останавливаем через <code>Ctrl+C</code>.</p>
+            <pre tabindex="0" aria-label="Полный Python-код вращающегося куба"><code><span class="token-keyword">import</span> math
 <span class="token-keyword">import</span> time
 <span class="token-keyword">import</span> os
 
@@ -126,7 +278,15 @@ a = <span class="token-number">0</span>
     a += <span class="token-number">0.035</span>
     time.sleep(<span class="token-number">0.03</span>)
 </code></pre>
-<aside class="note"><p>Для исходного варианта нужен терминал с поддержкой ANSI-последовательностей и команда <code>clear</code> (Linux/macOS). Окно должно вмещать 80 столбцов и 30 строк; небольшой запас помогает избежать прокрутки. После остановки курсор можно вернуть командой <code>printf '\033[?25h'</code>. Для постоянного использования стоит завернуть цикл в <code>try/finally</code> и восстанавливать курсор автоматически.</p></aside>
-<p>Теперь за вращающимся кубом виден весь путь: <strong>координаты → поворот → перспектива → ячейки → кадр</strong>. Смените вершины и рёбра — и тот же маленький движок нарисует другую каркасную фигуру.</p>
-<hr><p>Ещё материалы: <a href="https://t.me/eleday">Телеграм</a> · <a href="https://youtube.com/@eleday">YouTube</a></p><a href="../">← Все статьи</a>
-</article></main></body></html>
+            <aside class="note">
+                <p>Код рассчитан на терминал Linux/macOS с поддержкой команд управления курсором. Окно должно вмещать 80 столбцов и 30 строк, лучше с небольшим запасом. Если после остановки пропал курсор, верните его командой <code>printf '\033[?25h'</code>. В программе это можно автоматизировать через <code>try/finally</code>: команда восстановления выполнится и при остановке цикла.</p>
+            </aside>
+            <p>Получилось: задали восемь вершин, повернули их, перенесли на экран и соединили символами. Если заменить список вершин и рёбер, тот же код сможет крутить другую фигуру. Можно попробовать пирамиду.</p>
+            <hr>
+            <p>Ещё материалы: <a href="https://t.me/eleday">Телеграм</a> · <a
+                    href="https://youtube.com/@eleday">YouTube</a></p><a href="../">← Все статьи</a>
+        </article>
+    </main>
+</body>
+
+</html>

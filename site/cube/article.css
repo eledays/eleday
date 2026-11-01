@@ -16,3 +16,15 @@
 .cube-article .matrix { display:inline-block; border-inline:1px solid var(--muted); padding:4px 12px; margin-top:12px; font-size:14px; white-space:nowrap; }
 .cube-article h2[id] { scroll-margin-top:24px; }
 @media(max-width:480px) { .cube-article .matrix-pair { grid-template-columns:1fr; gap:0; } }
+.cube-article .matrix-equation { display:flex; align-items:center; justify-content:center; gap:12px; padding:24px 0; font-size:16px; }
+.cube-article .matrix-grid { border-inline:1px solid var(--muted); padding:8px 12px; font-size:14px; }
+.cube-article .matrix-grid [role="row"] { display:grid; grid-template-columns:repeat(3,auto); gap:12px; text-align:center; }
+.cube-article .matrix-grid [role="cell"] { min-width:3.6em; white-space:nowrap; }
+.cube-article .cube-example-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.cube-article .cube-example-grid > div { min-width:0; }
+.cube-article .cube-example-grid svg { width:100%; color:var(--accent); }
+.cube-article .example-frame { opacity:.25; }
+.cube-article svg .example-highlight { stroke-width:4; }
+.cube-article .cube-example-grid strong,.cube-article .cube-example-grid span { display:block; font-size:13px; line-height:1.6; }
+.cube-article .cube-example-grid span { color:var(--muted); }
+@media(max-width:600px) { .cube-article .cube-example-grid { grid-template-columns:1fr; gap:28px; } .cube-article .cube-example-grid svg { max-width:240px; margin:auto; } .cube-article .cube-example-grid > div { text-align:center; } }
