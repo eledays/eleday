@@ -13,6 +13,7 @@ button:hover { background:var(--surface); }
 .skip-link:focus { top:12px; }
 .site-header,.site-footer { max-width:1120px; margin:auto; padding:28px 32px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
 .brand { font-size:18px; font-weight:800; text-decoration:none; letter-spacing:-.7px; }
+.home-header { justify-content:flex-end; }
 .site-header nav { display:flex; gap:24px; align-items:center; font-size:13px; }
 main { max-width:var(--width); padding:64px 24px 96px; margin:auto; }
 h1,h2,h3 { line-height:1.2; font-weight:600; letter-spacing:-.045em; }
