@@ -282,6 +282,16 @@ a = <span class="token-number">0</span>
                 <p>Код рассчитан на терминал Linux/macOS с поддержкой команд управления курсором. Окно должно вмещать 80 столбцов и 30 строк, лучше с небольшим запасом. Если после остановки пропал курсор, верните его командой <code>printf '\033[?25h'</code>. В программе это можно автоматизировать через <code>try/finally</code>: команда восстановления выполнится и при остановке цикла.</p>
             </aside>
             <p>Получилось: задали восемь вершин, повернули их, перенесли на экран и соединили символами. Если заменить список вершин и рёбер, тот же код сможет крутить другую фигуру. Можно попробовать пирамиду.</p>
+            <section aria-labelledby="further-reading">
+                <h2 id="further-reading">Если хочется копнуть глубже</h2>
+                <p>Вот несколько материалов, чтобы подробнее разобраться, что происходит внутри. Все на английском, с примерами и пояснениями.</p>
+                <ul>
+                    <li><a href="https://www.3blue1brown.com/lessons/linear-transformations/">Как работают матрицы — 3Blue1Brown</a>. Наглядно про то, как матрица перемещает точки и меняет плоскость. Поможет понять повороты, а не просто запомнить формулы.</li>
+                    <li><a href="https://gabrielgambetta.com/computer-graphics-from-scratch/09-perspective-projection.html">Перспектива — Computer Graphics from Scratch</a>. Вывод проекции через подобные треугольники, а в конце — ещё один куб, нарисованный по его вершинам.</li>
+                    <li><a href="https://gabrielgambetta.com/computer-graphics-from-scratch/06-lines.html">Рисуем линии — Computer Graphics from Scratch</a>. Подробнее про интерполяцию и переход от ровной линии к отдельным пикселям.</li>
+                    <li><a href="https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions">Генераторы списков — документация Python</a>. Если хочется разобраться с записью <code>vertices</code> и <code>edges</code>: как работают <code>for</code> и <code>if</code> внутри квадратных скобок.</li>
+                </ul>
+            </section>
             <hr>
             <p>Ещё материалы: <a href="https://t.me/eleday">Телеграм</a> · <a
                     href="https://youtube.com/@eleday">YouTube</a></p><a href="../">← Все статьи</a>
